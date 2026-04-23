@@ -29,10 +29,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* ===== LOGIN ===== */
 #loginPage{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  min-height:100vh;align-items:center;justify-content:center;
   background:var(--bg);
   position:relative;overflow:hidden;
 }
+#loginPage.active{display:flex;}
 #loginPage::before{
   content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(232,64,12,0.03) 60px,rgba(232,64,12,0.03) 61px),
@@ -328,11 +329,35 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 .score-circle .s-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1;}
 .score-circle .s-lbl{font-size:0.55rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
 
+/* HAMBURGER */
+.hamburger{
+  display:none;position:fixed;top:1rem;left:1rem;z-index:100;
+  background:var(--accent);border:none;border-radius:10px;
+  width:42px;height:42px;cursor:pointer;color:#fff;font-size:1.2rem;
+  align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(232,64,12,0.4);
+}
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:49;
+}
+.sidebar-overlay.open{display:block;}
+
 @media(max-width:768px){
+  .hamburger{display:flex;}
   .sidebar{transform:translateX(-100%);}
   .sidebar.open{transform:none;}
-  .main-content{margin-left:0;}
+  .main-content{margin-left:0;padding:1rem;padding-top:4.5rem;}
   .stats-grid{grid-template-columns:1fr 1fr;}
+  .topbar h2{font-size:1.4rem;}
+  .topbar{flex-wrap:wrap;gap:0.5rem;}
+  .table-wrap{overflow-x:auto;}
+  table{min-width:500px;}
+  .lessons-grid{grid-template-columns:1fr;}
+  .tab-row{flex-wrap:wrap;width:100%;}
+  .tab{flex:1;text-align:center;}
+  .att-row{flex-wrap:wrap;gap:0.5rem;}
+  .att-dots{overflow-x:auto;}
+  .modal{padding:1.2rem;}
+  .login-wrap{padding:1rem;}
 }
 </style>
 </head>
@@ -392,6 +417,8 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 <!-- ===== ADMIN APP ===== -->
 <div id="adminApp" class="page">
   <div class="app-layout">
+    <button class="hamburger" onclick="toggleSidebar('adminSidebar')">☰</button>
+    <div class="sidebar-overlay" id="adminOverlay" onclick="closeSidebar('adminSidebar')"></div>
     <aside class="sidebar" id="adminSidebar">
       <div class="sidebar-head">
         <div class="school-name">🔧 АвтоМастер</div>
@@ -524,6 +551,8 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 <!-- ===== STUDENT APP ===== -->
 <div id="studentApp" class="page">
   <div class="app-layout">
+    <button class="hamburger" onclick="toggleSidebar('studentSidebar')">☰</button>
+    <div class="sidebar-overlay" id="studentOverlay" onclick="closeSidebar('studentSidebar')"></div>
     <aside class="sidebar" id="studentSidebar">
       <div class="sidebar-head">
         <div class="school-name">🔧 АвтоМастер</div>
@@ -756,6 +785,7 @@ function adminPanel(name){
   document.getElementById('p-'+name).classList.add('active');
   document.querySelectorAll('#adminSidebar .nav-item').forEach(b=>b.classList.remove('active'));
   event.currentTarget.classList.add('active');
+  closeSidebar('adminSidebar');
   if(name==='dashboard') renderDashboard();
   if(name==='students') renderStudentsTable();
   if(name==='lessons') renderAdminLessons();
@@ -979,6 +1009,7 @@ function studentPanel(name){
   document.getElementById('sp-'+name).classList.add('active');
   document.querySelectorAll('#studentSidebar .nav-item').forEach(b=>b.classList.remove('active'));
   event.currentTarget.classList.add('active');
+  closeSidebar('studentSidebar');
   if(name==='myLessons') renderStudentLessons();
   if(name==='myAttendance') renderMyAttendance();
   if(name==='myRatings') renderMyRatings();
@@ -1132,6 +1163,19 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
 });
+
+// ===== MOBILE SIDEBAR =====
+function toggleSidebar(id){
+  const s = document.getElementById(id);
+  s.classList.toggle('open');
+  const overlay = id==='adminSidebar' ? document.getElementById('adminOverlay') : document.getElementById('studentOverlay');
+  overlay.classList.toggle('open');
+}
+function closeSidebar(id){
+  document.getElementById(id).classList.remove('open');
+  const overlay = id==='adminSidebar' ? document.getElementById('adminOverlay') : document.getElementById('studentOverlay');
+  overlay.classList.remove('open');
+}
 
 // Init date fields
 document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
